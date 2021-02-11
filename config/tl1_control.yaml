@@ -3,7 +3,7 @@ tl1:
   # Creates the /joint_states topic necessary in ROS
   joint_state_controller:
     type: joint_state_controller/JointStateController
-    publish_rate: 30
+    publish_rate: 1000
 
   # Position Controllers ---------------------------------------
   leg_right_controller:

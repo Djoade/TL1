@@ -22,8 +22,8 @@ from tl1.task_envs import tl1_train_env
 
 
 
-ACTIONS_DIM = 8
-OBSERVATIONS_DIM = 3
+ACTIONS_DIM = 4
+OBSERVATIONS_DIM = 9
 MAX_ITERATIONS = 1000
 LEARNING_RATE = 0.001
 
@@ -79,7 +79,7 @@ def get_model():
   model = Sequential()
   model.add(Dense(16, input_shape=(OBSERVATIONS_DIM, ), activation='relu'))
   model.add(Dense(16, input_shape=(OBSERVATIONS_DIM,), activation='relu'))
-  model.add(Dense(8, activation='linear'))
+  model.add(Dense(4, activation='linear'))
 
   model.compile(
     optimizer=Adam(lr=LEARNING_RATE),
@@ -174,5 +174,5 @@ def main():
 
 
 if __name__ == "__main__":
-    rospy.init_node('tl1_mbalunovic_algorithm', anonymous=True, log_level=rospy.DEBUG)
+    rospy.init_node('tl1_mbalunovic_algorithm', anonymous=True, log_level=rospy.INFO)
     main()

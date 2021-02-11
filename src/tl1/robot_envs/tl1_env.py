@@ -34,7 +34,7 @@ class TL1Env(robot_gazebo_env.RobotGazeboEnv):
 
         self.robot_name_space = "tl1"
 
-        reset_controls_bool = False
+        reset_controls_bool = True
         
         # We launch the init function of the Parent Class robot_gazebo_env.RobotGazeboEnv
         
@@ -116,9 +116,17 @@ class TL1Env(robot_gazebo_env.RobotGazeboEnv):
 
 
     def links_callback(self, data):
-        for i in range(len(data.name)):
-            if data.name[i] == 'tl1::base_link':
-                self.height = data.pose[i].position.z
+        
+        self.x_orientation =  data.pose[1].orientation.x
+        self.y_orientation =  data.pose[1].orientation.y
+        self.z_orientation =  data.pose[1].orientation.z
+        self.w_orientation =  data.pose[1].orientation.w
+
+        self.x_position =  data.pose[1].position.x
+        self.y_position =  data.pose[1].position.y
+        self.z_position =  data.pose[1].position.z
+
+        self.height = self.z_position
 
     def init_internal_vars(self, init_pos_value):
         self.pos = [init_pos_value, init_pos_value]

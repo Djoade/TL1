@@ -24,7 +24,13 @@ class TL1StandUp(tl1_env.TL1Env):
         self.sum_reward = 0
         # This is the most common case of Box observation type
         high = numpy.array([
-            1*2,
+            numpy.finfo(numpy.float32).max,
+            numpy.finfo(numpy.float32).max,
+            numpy.finfo(numpy.float32).max,
+            numpy.finfo(numpy.float32).max,
+            numpy.finfo(numpy.float32).max,
+            numpy.finfo(numpy.float32).max,
+            numpy.finfo(numpy.float32).max,
             numpy.finfo(numpy.float32).max,
             numpy.finfo(numpy.float32).max
             ])
@@ -63,34 +69,34 @@ class TL1StandUp(tl1_env.TL1Env):
         Move the robot based on the action variable given
         """
         # Take action
-        if action == 0: #LL+
+        if action == 1: #LL+
             rospy.loginfo("LL+")
             self.pos[0] += self.pos_step
-        elif action == 1: #LL-
+        elif action == 3: #LL-
             rospy.loginfo("LL-")
             self.pos[0] -= self.pos_step
-        elif action == 2: #RL+
+        elif action == 0: #RL+
             rospy.loginfo("RL+")
             self.pos[1] += self.pos_step
-        elif action == 3: #RL-
+        elif action == 4: #RL-
             rospy.loginfo("RL-")
             self.pos[1] -= self.pos_step
-        elif action == 4: #RL+LL+
-            rospy.loginfo("LL+RL+")
-            self.pos[0] += self.pos_step
-            self.pos[1] += self.pos_step
-        elif action == 5: #RL-LL-
-            rospy.loginfo("LL-RL-")
-            self.pos[0] -= self.pos_step
-            self.pos[1] -= self.pos_step
-        elif action == 6: #RL+LL-
-            rospy.loginfo("LL+LR-")
-            self.pos[0] += self.pos_step
-            self.pos[1] -= self.pos_step
-        elif action == 7: #RL-LL+
-            rospy.loginfo("LL-RL+")
-            self.pos[0] -= self.pos_step
-            self.pos[1] += self.pos_step
+        # elif action == 4: #RL+LL+
+        #     rospy.loginfo("LL+RL+")
+        #     self.pos[0] += self.pos_step
+        #     self.pos[1] += self.pos_step
+        # elif action == 5: #RL-LL-
+        #     rospy.loginfo("LL-RL-")
+        #     self.pos[0] -= self.pos_step
+        #     self.pos[1] -= self.pos_step
+        # elif action == 6: #RL+LL-
+        #     rospy.loginfo("LL+LR-")
+        #     self.pos[0] += self.pos_step
+        #     self.pos[1] -= self.pos_step
+        # elif action == 7: #RL-LL+
+        #     rospy.loginfo("LL-RL+")
+        #     self.pos[0] -= self.pos_step
+        #     self.pos[1] += self.pos_step
 
           
        # Apply action to simulation.
@@ -108,8 +114,8 @@ class TL1StandUp(tl1_env.TL1Env):
     def _get_obs(self):
 
         data = self.joints
-        data_heignt = self.height
-        obs = [data_heignt, data.position[0], data.position[1]]
+        obs = [data.position[0], data.position[1], self.x_orientation,self.y_orientation,self.z_orientation,self.w_orientation, self.x_position,self.y_position,self.z_position]
+        print(obs[8])
         return numpy.array(obs)
 
     def _is_done(self, observations):
@@ -119,7 +125,7 @@ class TL1StandUp(tl1_env.TL1Env):
         done = False
         data = self.joints
         
-        if observations[0] < 0.2 and self.sum_reward < -100:
+        if observations[8] < 0.4 and self.sum_reward < -25:
             done = True
         
         rospy.loginfo("FINISHED get _is_done")
@@ -132,9 +138,13 @@ class TL1StandUp(tl1_env.TL1Env):
         """
         rospy.logdebug("START _compute_reward")
         
-        if observations[0] > 0.2:
-            reward = observations[0] * 10
+        if observations[8] > 0.4:
+            reward = observations[8] * 10
+            rew = 1
         else:
-            reward = -1
-        self.sum_reward += reward
+            reward = 0
+            rew = -1
+        self.sum_reward += rew
+        print(observations[0])
+        print(self.sum_reward)
         return reward
