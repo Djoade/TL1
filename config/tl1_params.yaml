@@ -1,0 +1,5 @@
+tl1:
+  n_actions: 10
+  pos_step: 1.0
+  running_step: 0.04
+  init_pos: 0.0

@@ -1,0 +1,32 @@
+<launch>
+    <arg name="model" default="$(find tl1)/urdf/tl1.urdf.xacro"/>
+    <arg name="rvizconfig" default="$(find urdf_tutorial)/rviz/urdf.rviz" />
+
+    <include file="$(find tl1)/launch/gazebo.launch">
+        <arg name="model" value="$(arg model)" />
+    </include>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" />
+
+    <rosparam file="$(find tl1)/config/gazebo_ros_control_params.yaml" command="load"/>
+    <rosparam command="load"
+            file="$(find tl1)/config/joints.yaml"
+            ns="tl1_joint_state_controller" />
+    <rosparam command="load"
+            file="$(find tl1)/config/leg_left.yaml"
+            ns="tl1_leg_left_controller" />
+    <rosparam command="load"
+            file="$(find tl1)/config/leg_right.yaml"
+            ns="tl1_leg_right_controller" />
+
+
+    <node name="tl1_controller_spawner" pkg="controller_manager" type="spawner"
+        args="tl1_joint_state_controller
+            tl1_leg_left_controller
+            tl1_leg_right_controller
+            --shutdown-timeout 3"/>
+
+    <node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering">
+        <param name="default_topic" value="/tl1_leg_controller/cmd_vel"/>
+    </node>
+</launch>

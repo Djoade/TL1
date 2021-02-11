@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<robot name="TL1" xmlns:xacro="http://ros.org/wiki/xacro">
+
+
+
+  <xacro:property name="width" value="0.3" />
+  <xacro:property name="width_leg" value="0.05" />
+  <xacro:property name="leglen" value="0.6" />
+  <xacro:property name="pi" value="3.1415" />
+
+  <material name="plum">
+    <color rgba="0.9 0.6 0.9 1"/>
+  </material>
+  
+  <material name="crimson">
+    <color rgba="0.86 0.06 0.24 1"/>
+  </material>
+
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+
+  <link name="dummy">
+   </link>
+
+  <joint name="dummy_joint" type="fixed">
+     <parent link="dummy"/>
+     <child link="base_link"/>
+   </joint>
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="${width} ${width} ${width}"/>
+      </geometry>
+      <material name="plum"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${width} ${width} ${width}"/>
+      </geometry>
+    </collision>
+        <inertial>
+      <mass value="4" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+    </inertial>
+  </link>
+
+
+    
+  <link name="left_leg">
+      <visual>
+        <geometry>
+          <box size="${leglen} ${width_leg} ${width_leg}"/>
+        </geometry>
+        <origin xyz="0 0 -${width}" rpy="0 ${pi/2} 0"/>
+        <material name="crimson"/>
+      </visual>
+
+      <collision>
+        <geometry>
+          <box size="${leglen} ${width_leg} ${width_leg}"/>
+        </geometry>
+        <origin xyz="0 0 -${width}" rpy="0 ${pi/2} 0"/>
+      </collision>
+    <inertial>
+    <origin xyz="0 0 -${leglen/2}"  rpy="0 0 0" />
+      <mass value="1" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+    </inertial>
+    </link>
+
+    <joint name="base_to_left_leg" type="continuous">
+      <parent link="base_link"/>
+      <child link="left_leg"/>
+      <origin xyz="0 ${(width/2+.06)} 0" rpy="0 ${pi/2} 0"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="10" velocity="10"/>
+      <dynamics damping="0.7"/>
+    </joint>
+
+    <link name="right_leg">
+      <visual>
+        <geometry>
+          <box size="${leglen} ${width_leg} ${width_leg}"/>
+        </geometry>
+        <origin xyz="0 0 -${width}" rpy="0 ${pi/2} 0"/>
+        <material name="crimson"/>
+      </visual>
+
+      <collision>
+        <geometry>
+          <box size="${leglen} ${width_leg} ${width_leg}"/>
+        </geometry>
+        <origin xyz="0 0 -${width}" rpy="0 ${pi/2} 0"/>
+      </collision>
+          <inertial>
+            <origin xyz="0 0 -${leglen/2}"  rpy="0 0 0" />
+            <mass value="1" />
+            <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+          </inertial>
+    </link>
+
+    <joint name="base_to_right_leg" type="continuous">
+      <parent link="base_link"/>
+      <child link="right_leg"/>
+      <origin xyz="0 ${-1*(width/2+.06)} 0" rpy="0 ${pi/2} 0"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="10" velocity="10"/>
+      <dynamics damping="0.7"/>
+    </joint>
+
+    <gazebo reference="left_leg">
+      <mu1 value="0.2"/>
+      <mu2 value="0.2"/>
+      <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <gazebo reference="right_leg">
+      <mu1 value="0.2"/>
+      <mu2 value="0.2"/>
+      <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <transmission name="tran1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="base_to_left_leg">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="base_to_right_leg">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/tl1</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+    </plugin>
+  </gazebo>
+</robot>

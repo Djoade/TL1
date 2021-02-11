@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<robot name="TL1" xmlns:xacro="http://ros.org/wiki/xacro">
+
+
+
+  <xacro:property name="width" value="0.3" />
+  <xacro:property name="width_leg" value="0.05" />
+  <xacro:property name="leglen" value="0.6" />
+  <xacro:property name="pi" value="3.1415" />
+
+  <material name="plum">
+  <color rgba="0.9 0.6 0.9 1"/>
+  </material>
+  
+  <material name="crimson">
+  <color rgba="0.86 0.06 0.24 1"/>
+  </material>
+
+  <material name="black">
+  <color rgba="0 0 0 1"/>
+  </material>
+
+  <material name="white">
+  <color rgba="1 1 1 1"/>
+  </material>
+
+
+  <xacro:macro name="default_inertial" params="mass">
+    <inertial>
+      <mass value="${mass}" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+    </inertial>
+  </xacro:macro>
+
+   <xacro:macro name="leg_inertial" params="mass">
+    <inertial>
+    <origin xyz="0 0 -${leglen/2}"  rpy="0 0 0" />
+      <mass value="${mass}" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+    </inertial>
+  </xacro:macro>
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="${width} ${width} ${width}"/>
+      </geometry>
+      <material name="plum"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${width} ${width} ${width}"/>
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="4"/>
+  </link>
+
+    <xacro:macro name="leg" params="prefix reflect">
+    <link name="${prefix}_leg">
+      <visual>
+        <geometry>
+          <box size="${leglen} ${width_leg} ${width_leg}"/>
+        </geometry>
+        <origin xyz="0 0 -${width}" rpy="0 ${pi/2} 0"/>
+        <material name="crimson"/>
+      </visual>
+
+      <collision>
+        <geometry>
+          <box size="${leglen} ${width_leg} ${width_leg}"/>
+        </geometry>
+        <origin xyz="0 0 -${width}" rpy="0 ${pi/2} 0"/>
+      </collision>
+      <xacro:leg_inertial mass="1"/>
+    </link>
+
+    <joint name="base_to_${prefix}_leg" type="continuous">
+      <parent link="base_link"/>
+      <child link="${prefix}_leg"/>
+      <origin xyz="0 ${reflect*(width/2+.06)} 0" />
+      <axis xyz="0 1 0"/>
+    <dynamics damping="0.7"/>
+    </joint>
+
+    <!-- This block provides the simulator (Gazebo) with information on a few additional
+    physical properties. See http://gazebosim.org/tutorials/?tut=ros_urdf for more-->
+    <gazebo reference="${prefix}_leg">
+      <mu1 value="0.2"/>
+      <mu2 value="0.2"/>
+      <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <!-- This block connects the wheel joint to an actuator (motor), which informs both
+    simulation and visualization of the robot -->
+    <transmission name="${prefix}_leg_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="base_to_${prefix}_leg">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${prefix}_leg_motor">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+
+  <xacro:leg prefix="right" reflect="-1" />
+  <xacro:leg prefix="left" reflect="1" />
+  
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/tl1</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+    </plugin>
+  </gazebo>
+</robot>
