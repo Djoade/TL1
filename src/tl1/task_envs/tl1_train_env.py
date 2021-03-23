@@ -52,6 +52,7 @@ class TL1StandUp(tl1_env.TL1Env):
     def _set_init_pose(self):
         """Sets the Robot in its init pose
         """
+        self.check_publishers_connection()
         self.init_internal_vars(self.init_pos)
         self.move_joints(self.pos)
 
@@ -69,13 +70,15 @@ class TL1StandUp(tl1_env.TL1Env):
         Move the robot based on the action variable given
         """
         # Take action
-        if action == 1: #LL+
+        if action == 0: #nothing
+            rospy.loginfo("nothing")
+        elif action == 1: #LL+
             rospy.loginfo("LL+")
             self.pos[0] += self.pos_step
-        elif action == 3: #LL-
+        elif action == 2: #LL-
             rospy.loginfo("LL-")
             self.pos[0] -= self.pos_step
-        elif action == 0: #RL+
+        elif action == 3: #RL+
             rospy.loginfo("RL+")
             self.pos[1] += self.pos_step
         elif action == 4: #RL-
@@ -115,18 +118,29 @@ class TL1StandUp(tl1_env.TL1Env):
 
         data = self.joints
         obs = [data.position[0], data.position[1], self.x_orientation,self.y_orientation,self.z_orientation,self.w_orientation, self.x_position,self.y_position,self.z_position]
-        print(obs[8])
+        print(self.x_position,self.y_position,self.z_position)
+        #print(obs[8])
         return numpy.array(obs)
 
     def _is_done(self, observations):
         """
         Decide if episode is done based on the observations
         """
+
+
         done = False
         data = self.joints
         
-        if observations[8] < 0.4 and self.sum_reward < -25:
+        if (-2 >= observations[7] or observations[7] >= 2):
             done = True
+        if (-2 >= observations[6] or observations[6] >= 2):
+            done = True
+        if observations[8] < 0.4:
+            done = True
+
+
+        # if observations[8] < 0.4 and self.sum_reward < 0:
+        #     done = True
         
         rospy.loginfo("FINISHED get _is_done")
         return done
@@ -145,6 +159,6 @@ class TL1StandUp(tl1_env.TL1Env):
             reward = 0
             rew = -1
         self.sum_reward += rew
-        print(observations[0])
-        print(self.sum_reward)
+        #print(observations[0])
+        #print(self.sum_reward)
         return reward

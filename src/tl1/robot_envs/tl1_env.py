@@ -20,7 +20,7 @@ class TL1Env(robot_gazebo_env.RobotGazeboEnv):
         # Variables that we give through the constructor.
         self.publishers_array = []
         self._right_pub = rospy.Publisher('/tl1/leg_right_controller/command', Float64, queue_size=1)
-        self._left_pub = rospy.Publisher('/tl1/leg_right_controller/command', Float64, queue_size=1)
+        self._left_pub = rospy.Publisher('/tl1/leg_left_controller/command', Float64, queue_size=1)
         self.publishers_array.append(self._right_pub)
         self.publishers_array.append(self._left_pub)
         
@@ -45,6 +45,31 @@ class TL1Env(robot_gazebo_env.RobotGazeboEnv):
     # Methods needed by the RobotGazeboEnv
     # ----------------------------
     
+    def check_publishers_connection(self):
+        """
+        Checks that all the publishers are working
+        :return:
+        """
+        rate = rospy.Rate(10)  # 10hz
+        while (self._right_pub.get_num_connections() == 0 and not rospy.is_shutdown()):
+            rospy.logdebug("No susbribers to _base_pub yet so we wait and try again")
+            try:
+                rate.sleep()
+            except rospy.ROSInterruptException:
+                # This is to avoid error when world is rested, time when backwards.
+                pass
+        rospy.logdebug("_right_pub Publisher Connected")
+
+        while (self._left_pub.get_num_connections() == 0 and not rospy.is_shutdown()):
+            rospy.logdebug("No susbribers to _pole_pub yet so we wait and try again")
+            try:
+                rate.sleep()
+            except rospy.ROSInterruptException:
+                # This is to avoid error when world is rested, time when backwards.
+                pass
+        rospy.logdebug("_left_pub Publisher Connected")
+
+        rospy.logdebug("All Publishers READY")
     
 
     def _check_all_systems_ready(self):

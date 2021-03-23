@@ -174,5 +174,5 @@ def main():
 
 
 if __name__ == "__main__":
-    rospy.init_node('tl1_mbalunovic_algorithm', anonymous=True, log_level=rospy.INFO)
+    rospy.init_node('tl1_mbalunovic_algorithm', anonymous=True, log_level=rospy.ERROR)
     main()

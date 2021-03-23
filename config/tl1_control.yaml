@@ -3,18 +3,30 @@ tl1:
   # Creates the /joint_states topic necessary in ROS
   joint_state_controller:
     type: joint_state_controller/JointStateController
-    publish_rate: 1000
+    publish_rate: 30
 
-  # Position Controllers ---------------------------------------
+    # Effort Controllers ---------------------------------------
   leg_right_controller:
-    type: effort_controllers/JointPositionController
+    type: effort_controllers/JointVelocityController
     joint: base_to_right_leg
-    pid: {p: 100.0, i: 0.01, d: 10.0}
+    pid: {p: 1000.0, i: 0.0, d: 0.0}
 
   leg_left_controller:
-    type: effort_controllers/JointPositionController
+    type: effort_controllers/JointVelocityController
     joint: base_to_left_leg
-    pid: {p: 100.0, i: 0.01, d: 10.0}
+    pid: {p: 1000.0, i: 0.0, d: 0.0}
+  # Position Controllers ---------------------------------------
+  # leg_right_controller:
+  #   type: effort_controllers/JointPositionController
+  #   joint: base_to_right_leg
+  #   pid: {p: 100.0, i: 0.01, d: 10.0}
+  #   #pid: {p: 10000.0, i: 0.0, d: 1000.0}
+
+  # leg_left_controller:
+  #   type: effort_controllers/JointPositionController
+  #   joint: base_to_left_leg
+  #   pid: {p: 100.0, i: 0.01, d: 10.0}
+  #   #pid: {p: 10000.0, i: 0.0, d: 1000.0}
 
 
 # gazebo_ros_control/pid_gains:
